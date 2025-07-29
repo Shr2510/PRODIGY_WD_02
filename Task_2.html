@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stopwatch with Lap Timer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    .stopwatch-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 320px;
+    }
+
+    .time-display {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      flex: 1;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    #startBtn { background-color: #28a745; color: white; }
+    #pauseBtn { background-color: #ffc107; color: white; }
+    #resetBtn { background-color: #dc3545; color: white; }
+    #lapBtn   { background-color: #007bff; color: white; }
+
+    .lap-times {
+      margin-top: 20px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .lap-times ul {
+      padding-left: 20px;
+      list-style-type: decimal;
+    }
+
+    .lap-times li {
+      font-size: 16px;
+      margin-bottom: 5px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stopwatch-container">
+    <div class="time-display" id="display">00:00:00</div>
+
+    <div class="buttons">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="resetBtn">Reset</button>
+      <button id="lapBtn">Lap</button>
+    </div>
+
+    <div class="lap-times">
+      <h3>Lap Times</h3>
+      <ul id="lapList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsedTime = 0;
+    let timerInterval;
+    let running = false;
+
+    const display = document.getElementById('display');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const lapBtn = document.getElementById('lapBtn');
+    const lapList = document.getElementById('lapList');
+
+    // Format milliseconds into HH:MM:SS
+    function formatTime(ms) {
+      const totalSeconds = Math.floor(ms / 1000);
+      const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+      const seconds = String(totalSeconds % 60).padStart(2, '0');
+      return `${hours}:${minutes}:${seconds}`;
+    }
+
+    // Update the display
+    function updateDisplay() {
+      display.textContent = formatTime(elapsedTime);
+    }
+
+    // Start the stopwatch
+    function startTimer() {
+      if (!running) {
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => {
+          elapsedTime = Date.now() - startTime;
+          updateDisplay();
+        }, 100);
+        running = true;
+      }
+    }
+
+    // Pause the stopwatch
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      running = false;
+    }
+
+    // Reset the stopwatch
+    function resetTimer() {
+      clearInterval(timerInterval);
+      elapsedTime = 0;
+      updateDisplay();
+      lapList.innerHTML = '';
+      running = false;
+    }
+
+    // Add a lap time
+    function addLap() {
+      if (running) {
+        const li = document.createElement('li');
+        li.textContent = formatTime(elapsedTime);
+        lapList.appendChild(li);
+      }
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', resetTimer);
+    lapBtn.addEventListener('click', addLap);
+
+    // Initialize
+    updateDisplay();
+  </script>
+</body>
+</html>
